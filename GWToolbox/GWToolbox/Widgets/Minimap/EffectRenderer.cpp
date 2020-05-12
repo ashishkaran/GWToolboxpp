@@ -115,12 +115,14 @@ void EffectRenderer::RemoveTriggeredEffect(uint32_t effect_id, GW::Vec2f* pos) {
 	Effect* closest = nullptr;
 	float closestDistance = GW::Constants::SqrRange::Nearby;
 	uint32_t closest_idx = 0;
-	for (size_t i = 0; i < aoe_effects.size();i++) {
-		Effect* effect = aoe_effects[i];
+	Effect* effect = nullptr;
+	float newDistance = 0.0f;
+	for (size_t i = 0, size = aoe_effects.size(); i < size;i++) {
+		effect = aoe_effects[i];
 		if (!effect || effect->effect_id != settings->effect_id)
 			continue;
 		// Need to estimate position; player may have moved on cast slightly.
-		float newDistance = GW::GetSquareDistance(*pos,effect->pos);
+		newDistance = GW::GetSquareDistance(*pos,effect->pos);
 		if (newDistance > closestDistance)
 			continue;
 		closest_idx = i;
@@ -208,10 +210,9 @@ void EffectRenderer::DrawAoeEffects(IDirect3DDevice9* device) {
     if (aoe_effects.empty())
         return;
 	D3DXMATRIX translate, scale, world;
-	std::lock_guard<std::recursive_mutex> lock(effects_mutex);
-	int effect_size = aoe_effects.size();
-	for (int i = 0; i < effect_size; i++) {
-		Effect* effect = aoe_effects[i];
+	Effect* effect = nullptr;
+	for (size_t i = 0, effect_size = aoe_effects.size(); i < effect_size; i++) {
+		effect = aoe_effects[i];
 		if (!effect)
 			continue;
 		if (TIMER_DIFF(effect->start) > effect->duration) {
@@ -240,9 +241,9 @@ void EffectRenderer::EffectCircle::Initialize(IDirect3DDevice9* device) {
 		D3DFVF_CUSTOMVERTEX, D3DPOOL_MANAGED, &buffer, NULL);
 	buffer->Lock(0, sizeof(D3DVertex) * vertex_count,
 		(VOID**)&vertices, D3DLOCK_DISCARD);
-
+	float angle = 0.0f;
 	for (size_t i = 0; i < count; ++i) {
-		float angle = i * (2 * (float)M_PI / count);
+		angle = i * (2 * (float)M_PI / count);
 		vertices[i].x = std::cos(angle);
 		vertices[i].y = std::sin(angle);
 		vertices[i].z = 0.0f;

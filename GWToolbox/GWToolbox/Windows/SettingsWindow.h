@@ -31,9 +31,10 @@ public:
 		bool is_showing = ImGui::CollapsingHeader(section, ImGuiTreeNodeFlags_AllowItemOverlap);
 		if(is_showing) ImGui::PushID(section);
 		size_t i = 0;
-		for (auto entry : settings_section->second) {
+		std::pair<const std::string, SectionDrawCallbackList>* entry = nullptr;
+		for (size_t i = 0, size = settings_section->second.size(); i < size; i++) {
 			if (i && is_showing) ImGui::Separator();
-			entry.second(&settings_section->first, is_showing);
+			settings_section->second[i].second(&settings_section->first, is_showing);
 			i++;
 		}
 		if (is_showing) ImGui::PopID();

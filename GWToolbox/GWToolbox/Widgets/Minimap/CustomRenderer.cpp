@@ -313,53 +313,57 @@ void CustomRenderer::Render(IDirect3DDevice9* device) {
 }
 
 void CustomRenderer::DrawCustomMarkers(IDirect3DDevice9* device) {
-	if (GW::Map::GetInstanceType() == GW::Constants::InstanceType::Explorable) {
-		for (const CustomMarker& marker : markers) {
-			if (marker.visible 
-				&& (marker.map == GW::Constants::MapID::None || marker.map == GW::Map::GetMapID())) {
-				D3DXMATRIX translate, scale, world;
-				D3DXMatrixTranslation(&translate, marker.pos.x, marker.pos.y, 0.0f);
-				D3DXMatrixScaling(&scale, marker.size, marker.size, 1.0f);
-				world = scale * translate;
-				device->SetTransform(D3DTS_WORLD, &world);
+	if (GW::Map::GetInstanceType() != GW::Constants::InstanceType::Explorable)
+		return;
+	CustomMarker* marker = nullptr;
+	for(size_t i = 0, size = markers.size();i < size;i++) {
+		marker = &markers[i];
+		if (marker->visible 
+			&& (marker->map == GW::Constants::MapID::None || marker->map == GW::Map::GetMapID())) {
+			D3DXMATRIX translate, scale, world;
+			D3DXMatrixTranslation(&translate, marker->pos.x, marker->pos.y, 0.0f);
+			D3DXMatrixScaling(&scale, marker->size, marker->size, 1.0f);
+			world = scale * translate;
+			device->SetTransform(D3DTS_WORLD, &world);
 
-				switch (marker.shape) {
-				case LineCircle: linecircle.Render(device); break;
-				case FullCircle: fullcircle.Render(device); break;
-				}
+			switch (marker->shape) {
+			case LineCircle: linecircle.Render(device); break;
+			case FullCircle: fullcircle.Render(device); break;
 			}
 		}
-
-		GW::HeroFlagArray& flags = GW::GameContext::instance()->world->hero_flags;
-		if (flags.valid()) {
-			for (unsigned i = 0; i < flags.size(); ++i) {
-				GW::HeroFlag& flag = flags[i];
-				D3DXMATRIX translate, scale, world;
-				D3DXMatrixTranslation(&translate, flag.flag.x, flag.flag.y, 0.0f);
-				D3DXMatrixScaling(&scale, 200.0f, 200.0f, 1.0f);
-				world = scale * translate;
-				device->SetTransform(D3DTS_WORLD, &world);
-				linecircle.Render(device);
-			}
-		}
-		GW::Vec3f allflag = GW::GameContext::instance()->world->all_flag;
-		D3DXMATRIX translate, scale, world;
-		D3DXMatrixTranslation(&translate, allflag.x, allflag.y, 0.0f);
-		D3DXMatrixScaling(&scale, 300.0f, 300.0f, 1.0f);
-		world = scale * translate;
-		device->SetTransform(D3DTS_WORLD, &world);
-		linecircle.Render(device);
 	}
+
+	GW::HeroFlagArray& flags = GW::GameContext::instance()->world->hero_flags;
+	if (flags.valid()) {
+		for (unsigned i = 0; i < flags.size(); ++i) {
+			GW::HeroFlag& flag = flags[i];
+			D3DXMATRIX translate, scale, world;
+			D3DXMatrixTranslation(&translate, flag.flag.x, flag.flag.y, 0.0f);
+			D3DXMatrixScaling(&scale, 200.0f, 200.0f, 1.0f);
+			world = scale * translate;
+			device->SetTransform(D3DTS_WORLD, &world);
+			linecircle.Render(device);
+		}
+	}
+	GW::Vec3f allflag = GW::GameContext::instance()->world->all_flag;
+	D3DXMATRIX translate, scale, world;
+	D3DXMatrixTranslation(&translate, allflag.x, allflag.y, 0.0f);
+	D3DXMatrixScaling(&scale, 300.0f, 300.0f, 1.0f);
+	world = scale * translate;
+	device->SetTransform(D3DTS_WORLD, &world);
+	linecircle.Render(device);
 }
 
 void CustomRenderer::DrawCustomLines(IDirect3DDevice9* device) {
-	if (GW::Map::GetInstanceType() == GW::Constants::InstanceType::Explorable) {
-		for (const CustomLine& line : lines) {
-			if (line.visible 
-				&& (line.map == GW::Constants::MapID::None || line.map == GW::Map::GetMapID())) {
-				EnqueueVertex(line.p1.x, line.p1.y, color);
-				EnqueueVertex(line.p2.x, line.p2.y, color);
-			}
+	if (GW::Map::GetInstanceType() != GW::Constants::InstanceType::Explorable)
+		return;
+	CustomLine* line = nullptr;
+	for (size_t i = 0, size = lines.size(); i < size; i++) {
+		line = &lines[i];
+		if (line->visible 
+			&& (line->map == GW::Constants::MapID::None || line->map == GW::Map::GetMapID())) {
+			EnqueueVertex(line->p1.x, line->p1.y, color);
+			EnqueueVertex(line->p2.x, line->p2.y, color);
 		}
 	}
 }

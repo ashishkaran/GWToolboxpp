@@ -112,7 +112,7 @@ void SettingsWindow::Draw(IDirect3DDevice9* pDevice) {
 		DrawSettingsSection(ToolboxSettings::Instance().SettingsName());
 
 		const std::vector<ToolboxModule*>& optional_modules = ToolboxSettings::Instance().GetOptionalModules();
-		for (unsigned i = 0; i < optional_modules.size(); ++i) {
+		for (size_t i = 0, size = optional_modules.size(); i < size; ++i) {
 			if (i == sep_windows) ImGui::Text("Windows:");
 			if (i == sep_widgets) ImGui::Text("Widgets:");
 			DrawSettingsSection(optional_modules[i]->SettingsName());
